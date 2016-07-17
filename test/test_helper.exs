@@ -2,7 +2,7 @@ Logger.configure(level: :info)
 Application.ensure_all_started(:hackney)
 ExUnit.start()
 
-defmodule ExUnit.RollbaxCase do
+defmodule ExUnit.AirbaxCase do
   use ExUnit.CaseTemplate
 
   using(_) do
@@ -11,11 +11,11 @@ defmodule ExUnit.RollbaxCase do
     end
   end
 
-  def start_rollbax_client(token, env) do
-    Rollbax.Client.start_link(token, env, true, "http://localhost:4004")
+  def start_airbax_client(project_key, project_id, env) do
+    Airbax.Client.start_link(project_key, project_id, env, true, "http://localhost:4004")
   end
 
-  def ensure_rollbax_client_down(pid) do
+  def ensure_airbax_client_down(pid) do
     ref = Process.monitor(pid)
     receive do
       {:DOWN, ^ref, _, _, _} -> :ok
@@ -56,10 +56,10 @@ defmodule RollbarAPI do
     :timer.sleep(30)
     send test, {:api_request, body}
 
-    if get_in(Poison.decode!(body), ["data", "custom", "return_error?"]) do
+    if get_in(Poison.decode!(body), ["params", "return_error?"]) do
       send_resp(conn, 400, ~s({"err": 1, "message": "that was a bad request"}))
     else
-      send_resp(conn, 200, "{}")
+      send_resp(conn, 201, "{}")
     end
   end
 

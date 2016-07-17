@@ -1,19 +1,19 @@
-defmodule Rollbax.Client do
+defmodule Airbax.Client do
   @moduledoc false
 
   # This GenServer keeps a pre-built bare-bones version of an exception (a
-  # "draft") to be reported to Rollbar, which is then filled with the data
+  # "draft") to be reported to Airbrake, which is then filled with the data
   # related to each specific exception when such exception is being
   # reported. This GenServer is also responsible for actually sending data to
-  # the Rollbar API and receiving responses from said API.
+  # the Airbrake API and receiving responses from said API.
 
   use GenServer
 
   require Logger
 
-  alias Rollbax.Item
+  alias Airbax.Item
 
-  @api_url "https://api.rollbar.com/api/1/item/"
+  @api_url "https://errbit.adjust.com"
   @headers [{"content-type", "application/json"}]
 
   ## GenServer state
@@ -22,24 +22,24 @@ defmodule Rollbax.Client do
 
   ## Public API
 
-  def start_link(token, environment, enabled, url \\ @api_url) do
-    state = new(token, environment, url, enabled)
+  def start_link(project_key, project_id, environment, enabled, url \\ @api_url) do
+    state = new(project_key, project_id, environment, url, enabled)
     GenServer.start_link(__MODULE__, state, [name: __MODULE__])
   end
 
-  def emit(level, timestamp, body, custom, occurrence_data) do
+  def emit(level, body, custom, occurrence_data) do
     if pid = Process.whereis(__MODULE__) do
-      event = {Atom.to_string(level), timestamp, body, custom, occurrence_data}
+      event = {Atom.to_string(level), body, custom, occurrence_data}
       GenServer.cast(pid, {:emit, event})
     else
-      Logger.warn("(Rollbax) Trying to report an exception but the :rollbax application has not been started")
+      Logger.warn("(Airbax) Trying to report an exception but the :airbax application has not been started")
     end
   end
 
   ## GenServer callbacks
 
   def init(state) do
-    Logger.metadata(rollbax: false)
+    Logger.metadata(airbax: false)
     :ok = :hackney_pool.start_pool(__MODULE__, [max_connections: 20])
     {:ok, state}
   end
@@ -53,11 +53,10 @@ defmodule Rollbax.Client do
   end
 
   def handle_cast({:emit, event}, %{enabled: :log} = state) do
-    {level, timestamp, body, custom, occurrence_data} = event
+    {level, body, custom, occurrence_data} = event
     Logger.info [
-      "(Rollbax) registered report:", ?\n, inspect(body),
+      "(Airbax) registered report:", ?\n, inspect(body),
       "\n          Level: ", level,
-      "\n      Timestamp: ", Integer.to_string(timestamp),
       "\n    Custom data: ", inspect(custom),
       "\nOccurrence data: ", inspect(occurrence_data),
     ]
@@ -70,7 +69,7 @@ defmodule Rollbax.Client do
     case :hackney.post(state.url, @headers, payload, opts) do
       {:ok, _ref} -> :ok
       {:error, reason} ->
-        Logger.error("(Rollbax) connection error: #{inspect(reason)}")
+        Logger.error("(Airbax) connection error: #{inspect(reason)}")
     end
     {:noreply, state}
   end
@@ -81,15 +80,21 @@ defmodule Rollbax.Client do
   end
 
   def handle_info(message, state) do
-    Logger.info("(Rollbax) unexpected message: #{inspect(message)}")
+    Logger.info("(Airbax) unexpected message: #{inspect(message)}")
     {:noreply, state}
   end
 
   ## Helper functions
 
-  defp new(token, environment, url, enabled) do
-    draft = Item.draft(token, environment)
+  defp new(project_key, project_id, environment, url, enabled) do
+    draft = Item.draft(environment)
+    url = build_url(project_key, project_id, url)
+
     %__MODULE__{draft: draft, url: url, enabled: enabled}
+  end
+
+  defp build_url(project_key, project_id, url) do
+    "#{url}/api/v3/projects/#{project_id}/notices?key=#{project_key}"
   end
 
   defp compose_json(draft, event) do
@@ -102,26 +107,26 @@ defmodule Rollbax.Client do
 
     case Poison.decode(body) do
       {:ok, %{"err" => 1, "message" => message}} when is_binary(message) ->
-        Logger.error("(Rollbax) API returned an error: #{inspect message}")
+        Logger.error("(Airbax) API returned an error: #{inspect message}")
       {:ok, response} ->
-        Logger.debug("(Rollbax) API response: #{inspect response}")
+        Logger.debug("(Airbax) API response: #{inspect response}")
       {:error, _} ->
-        Logger.error("(Rollbax) API returned malformed JSON: #{inspect body}")
+        Logger.error("(Airbax) API returned malformed JSON: #{inspect body}")
     end
 
     %{state | hackney_responses: Map.delete(responses, ref)}
   end
 
   defp handle_hackney_response(ref, {:status, code, description}, %{hackney_responses: responses} = state) do
-    if code != 200 do
-      Logger.error("(Rollbax) unexpected API status: #{code}/#{description}")
+    if code != 201 do
+      Logger.error("(Airbax) unexpected API status: #{code}/#{description}")
     end
 
     %{state | hackney_responses: Map.put(responses, ref, [])}
   end
 
   defp handle_hackney_response(_ref, {:headers, headers}, state) do
-    Logger.debug("(Rollbax) API headers: #{inspect(headers)}")
+    Logger.debug("(Airbax) API headers: #{inspect(headers)}")
     state
   end
 
@@ -131,7 +136,7 @@ defmodule Rollbax.Client do
   end
 
   defp handle_hackney_response(ref, {:error, reason}, %{hackney_responses: responses} = state) do
-    Logger.error("(Rollbax) connection error: #{inspect(reason)}")
+    Logger.error("(Airbax) connection error: #{inspect(reason)}")
     %{state | hackney_responses: Map.delete(responses, ref)}
   end
 end
