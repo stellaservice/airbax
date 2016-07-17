@@ -13,7 +13,7 @@ defmodule Airbax.Client do
 
   alias Airbax.Item
 
-  @api_url "https://errbit.adjust.com"
+  @default_url "https://airbrake.io"
   @headers [{"content-type", "application/json"}]
 
   ## GenServer state
@@ -22,7 +22,7 @@ defmodule Airbax.Client do
 
   ## Public API
 
-  def start_link(project_key, project_id, environment, enabled, url \\ @api_url) do
+  def start_link(project_key, project_id, environment, enabled, url) do
     state = new(project_key, project_id, environment, url, enabled)
     GenServer.start_link(__MODULE__, state, [name: __MODULE__])
   end
@@ -34,6 +34,10 @@ defmodule Airbax.Client do
     else
       Logger.warn("(Airbax) Trying to report an exception but the :airbax application has not been started")
     end
+  end
+
+  def default_url do
+    @default_url
   end
 
   ## GenServer callbacks

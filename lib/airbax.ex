@@ -25,9 +25,10 @@ defmodule Airbax do
     project_key = fetch_config(:project_key)
     project_id = fetch_config(:project_id)
     envt  = fetch_config(:environment)
+    url = get_config(:url, Airbax.Client.default_url)
 
     children = [
-      worker(Airbax.Client, [project_key, project_id, envt, enabled])
+      worker(Airbax.Client, [project_key, project_id, envt, enabled, url])
     ]
 
     Supervisor.start_link(children, strategy: :one_for_one)
