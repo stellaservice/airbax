@@ -1,10 +1,10 @@
-defmodule Rollbax.Mixfile do
+defmodule Airbax.Mixfile do
   use Mix.Project
 
-  @version "0.6.1"
+  @version "0.0.1"
 
   def project() do
-    [app: :rollbax,
+    [app: :airbax,
      version: @version,
      elixir: "~> 1.0",
      build_embedded: Mix.env == :prod,
@@ -12,16 +12,15 @@ defmodule Rollbax.Mixfile do
      description: description(),
      package: package(),
      deps: deps(),
-     name: "Rollbax",
-     docs: [main: "Rollbax",
+     name: "Airbax",
+     docs: [main: "Airbax",
             source_ref: "v#{@version}",
-            source_url: "https://github.com/elixir-addicts/rollbax",
-            extras: ["pages/Using Rollbax in Plug-based applications.md"]]]
+            source_url: "https://github.com/gaynetdinov/airbax"]]
   end
 
   def application() do
     [applications: [:logger, :hackney, :poison],
-     mod: {Rollbax, []}]
+     mod: {Airbax, []}]
   end
 
   defp deps() do
@@ -36,12 +35,12 @@ defmodule Rollbax.Mixfile do
   end
 
   defp description() do
-    "Exception tracking and logging from Elixir to Rollbar"
+    "Exception tracking from Elixir to Airbrake"
   end
 
   defp package() do
-    [maintainers: ["Aleksei Magusev"],
+    [maintainers: ["Damir Gainetdinov"],
      licenses: ["ISC"],
-     links: %{"GitHub" => "https://github.com/elixir-addicts/rollbax"}]
+     links: %{"GitHub" => "https://github.com/gaynetdinov/airbax"}]
   end
 end
