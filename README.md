@@ -40,6 +40,8 @@ config :airbax,
   environment: "production"
 ```
 
+If you're using Errbit, add to the config above an URL to your Errbit service as `url` parameter.  
+
 Then, exceptions (errors, exits, and throws) can be reported to Airbrake or Errbit using `Airbax.report/3`:
 
 ```elixir
