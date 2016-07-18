@@ -6,7 +6,7 @@ Airbax is a clone of awesome [Rollbax](https://github.com/elixir-addicts/rollbax
 
 Airbax was made by simply replacing 'rollbax' with 'airbax' everywhere in the code, changing
 `Rollbax.Item` and `Rollbax.Client` to make them compatible with Airbrake API specifications
-and fixing some specs. That's it.  
+and fixing some tests. That's it.  
 All credits go to Rollbax.
 
 ## Installation
