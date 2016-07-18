@@ -24,7 +24,6 @@ defmodule AirbaxTest do
     assert body =~ ~s("line":16)
     assert body =~ ~s("function":"Test.report/2")
     assert body =~ ~s("uuid":"d4c7")
-    refute body =~ ~s("custom")
   end
 
   test "report/3 with an exit" do
@@ -36,7 +35,6 @@ defmodule AirbaxTest do
     assert body =~ ~s("file":"file.exs")
     assert body =~ ~s("line":16)
     assert body =~ ~s("function":"Test.report/2")
-    refute body =~ ~s("custom")
   end
 
   test "report/3 with a throw" do
@@ -48,6 +46,5 @@ defmodule AirbaxTest do
     assert body =~ ~s("file":"file.exs")
     assert body =~ ~s("line":16)
     assert body =~ ~s("function":"Test.report/2")
-    refute body =~ ~s("custom")
   end
 end

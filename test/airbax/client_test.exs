@@ -16,7 +16,7 @@ defmodule Airbax.ClientTest do
   end
 
   test "emit/5" do
-    :ok = Client.emit(:warn, %{"message" => %{"body" => "pass"}}, _custom = %{foo: "bar"}, %{})
+    :ok = Client.emit(:warn, %{"message" => %{"body" => "pass"}}, _params= %{foo: "bar"}, %{})
     assert_receive {:api_request, body}
     assert body =~ ~s("environment":"test")
     assert body =~ ~s("body":"pass")

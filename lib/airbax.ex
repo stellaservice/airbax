@@ -84,8 +84,8 @@ defmodule Airbax do
 
   """
   @spec report(:error | :exit | :throw, any, [any], map, map) :: :ok
-  def report(kind, value, stacktrace, custom \\ %{}, occurrence_data \\ %{})
-  when kind in [:error, :exit, :throw] and is_list(stacktrace) and is_map(custom) and is_map(occurrence_data) do
+  def report(kind, value, stacktrace, params \\ %{}, session \\ %{})
+  when kind in [:error, :exit, :throw] and is_list(stacktrace) and is_map(params) and is_map(session) do
     # We need this manual check here otherwise Exception.format_banner(:error,
     # term) will assume that term is an Erlang error (it will say
     # "** # (ErlangError) ...").
@@ -94,7 +94,7 @@ defmodule Airbax do
     end
 
     body = Airbax.Item.exception_to_body(kind, value, stacktrace)
-    Airbax.Client.emit(:error, body, custom, occurrence_data)
+    Airbax.Client.emit(:error, body, params, session)
   end
 
   defp get_config(key, default) do

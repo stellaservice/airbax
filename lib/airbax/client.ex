@@ -27,9 +27,9 @@ defmodule Airbax.Client do
     GenServer.start_link(__MODULE__, state, [name: __MODULE__])
   end
 
-  def emit(level, body, custom, occurrence_data) do
+  def emit(level, body, params, session) do
     if pid = Process.whereis(__MODULE__) do
-      event = {Atom.to_string(level), body, custom, occurrence_data}
+      event = {Atom.to_string(level), body, params, session}
       GenServer.cast(pid, {:emit, event})
     else
       Logger.warn("(Airbax) Trying to report an exception but the :airbax application has not been started")
@@ -57,12 +57,12 @@ defmodule Airbax.Client do
   end
 
   def handle_cast({:emit, event}, %{enabled: :log} = state) do
-    {level, body, custom, occurrence_data} = event
+    {level, body, params, session} = event
     Logger.info [
       "(Airbax) registered report:", ?\n, inspect(body),
-      "\n          Level: ", level,
-      "\n    Custom data: ", inspect(custom),
-      "\nOccurrence data: ", inspect(occurrence_data),
+      "\n         Level: ", level,
+      "\n Custom params: ", inspect(params),
+      "\n  Session data: ", inspect(session),
     ]
     {:noreply, state}
   end
