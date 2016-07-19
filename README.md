@@ -1,5 +1,7 @@
 # Airbax
 
+[![Build Status](https://travis-ci.org/gaynetdinov/airbax.svg?branch=master "Build Status")](https://travis-ci.org/gaynetdinov/airbax)
+
 Elixir client for [Airbrake](https://airbrake.io).
 
 Airbax is a clone of awesome [Rollbax](https://github.com/elixir-addicts/rollbax), but for Airbrake/Errbit.
