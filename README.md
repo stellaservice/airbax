@@ -1,6 +1,7 @@
 # Airbax
 
 [![Build Status](https://travis-ci.org/gaynetdinov/airbax.svg?branch=master "Build Status")](https://travis-ci.org/gaynetdinov/airbax)
+[![Hex Version](https://img.shields.io/hexpm/v/airbax.svg "Hex Version")](https://hex.pm/packages/airbax)
 
 Elixir client for [Airbrake](https://airbrake.io).
 
