@@ -15,7 +15,7 @@ defmodule Airbax.Mixfile do
      name: "Airbax",
      docs: [main: "Airbax",
             source_ref: "v#{@version}",
-            source_url: "https://github.com/gaynetdinov/airbax",
+            source_url: "https://github.com/adjust/airbax",
             extras: ["pages/Using Airbax in Plug-based applications.md"]]]
   end
 
@@ -42,6 +42,6 @@ defmodule Airbax.Mixfile do
   defp package() do
     [maintainers: ["Damir Gainetdinov"],
      licenses: ["ISC"],
-     links: %{"GitHub" => "https://github.com/gaynetdinov/airbax"}]
+     links: %{"GitHub" => "https://github.com/adjust/airbax"}]
   end
 end
