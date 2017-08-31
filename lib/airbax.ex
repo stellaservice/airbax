@@ -102,7 +102,9 @@ defmodule Airbax do
   end
 
   defp get_config(key, default) do
-    Application.get_env(:airbax, key, default)
+    :airbax
+    |> Application.get_env(key, default)
+    |> process_env()
   end
 
   defp fetch_config(key) do
@@ -112,4 +114,9 @@ defmodule Airbax do
       value -> value
     end
   end
+
+  defp process_env({:system, var}),
+    do: System.get_env(var) || raise ArgumentError, "environment variable #{inspect(var)} is not set"
+  defp process_env({:system, var, default}),
+    do: System.get_env(var) || default
 end
