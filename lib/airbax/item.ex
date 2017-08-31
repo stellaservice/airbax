@@ -104,7 +104,7 @@ defmodule Airbax.Item do
   defp platform() do
     :erlang.system_info(:system_version)
     |> List.to_string
-    |> String.strip
+    |> String.trim
   end
 
   defp notifier() do
