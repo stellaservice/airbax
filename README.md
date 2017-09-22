@@ -18,7 +18,7 @@ Add Airbax as a dependency to your `mix.exs` file:
 
 ```elixir
 defp deps() do
-  [{:airbax, "~> 0.0.4"}]
+  [{:airbax, "0.0.5"}]
 end
 ```
 
