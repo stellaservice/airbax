@@ -47,4 +47,14 @@ defmodule AirbaxTest do
     assert body =~ ~s("line":16)
     assert body =~ ~s("function":"Test.report/2")
   end
+
+  test "report/3 with an ignored error" do
+    Application.put_env(:airbax, :ignore, [RuntimeError])
+    stacktrace = [{Test, :report, 2, [file: 'file.exs', line: 16]}]
+    exception = RuntimeError.exception("pass")
+    :ok = Airbax.report(:error, exception, stacktrace, %{}, %{uuid: "d4c7"})
+    refute_receive {:api_request, _body}
+
+    Application.put_env(:airbax, :ignore, [])
+  end
 end

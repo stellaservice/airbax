@@ -9,9 +9,10 @@ defmodule Airbax do
   work. This configuration can be done, for example, in `config/config.exs`:
 
       config :airbax,
-        project_key: "9309123491",
-        project_id: true,
-        environment: "production"
+        project_key: {:system, "AIRBRAKE_PROJECT_KEY"},
+        project_id: {:system, "AIRBRAKE_PROJECT_ID"},
+        environment: "production",
+        ignore: [Phoenix.Router.NoRouteError] # optional, can be set to `:all`
   """
 
   use Application
@@ -90,6 +91,22 @@ defmodule Airbax do
   @spec report(:error | :exit | :throw, any, [any], map, map) :: :ok
   def report(kind, value, stacktrace, params \\ %{}, session \\ %{})
   when kind in [:error, :exit, :throw] and is_list(stacktrace) and is_map(params) and is_map(session) do
+    if ignore?(kind, value) do
+      :ok
+    else
+      do_report(kind, value, stacktrace, params, session)
+    end
+  end
+
+  defp ignore?(kind, value, ignore \\ get_config(:ignore, []))
+  defp ignore?(_kind, _value, :all),
+    do: true
+  defp ignore?(:error, %type{}, ignore) when is_list(ignore),
+    do: type in ignore
+  defp ignore?(_kind, _value, _ignore),
+    do: false
+
+  defp do_report(kind, value, stacktrace, params, session) do
     # We need this manual check here otherwise Exception.format_banner(:error,
     # term) will assume that term is an Erlang error (it will say
     # "** # (ErlangError) ...").
@@ -102,7 +119,9 @@ defmodule Airbax do
   end
 
   defp get_config(key, default) do
-    Application.get_env(:airbax, key, default)
+    :airbax
+    |> Application.get_env(key, default)
+    |> process_env()
   end
 
   defp fetch_config(key) do
@@ -112,4 +131,11 @@ defmodule Airbax do
       value -> value
     end
   end
+
+  defp process_env({:system, var}),
+    do: System.get_env(var) || raise ArgumentError, "environment variable #{inspect(var)} is not set"
+  defp process_env({:system, var, default}),
+    do: System.get_env(var) || default
+  defp process_env(val),
+    do: val
 end
