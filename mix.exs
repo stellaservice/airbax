@@ -26,7 +26,7 @@ defmodule Airbax.Mixfile do
 
   defp deps() do
     [{:hackney, "~> 1.1"},
-     {:poison,  "~> 3.0"},
+     {:poison,  "~> 4.0"},
 
      {:ex_doc, ">= 0.0.0", only: :docs},
      {:earmark, ">= 0.0.0", only: :docs},
